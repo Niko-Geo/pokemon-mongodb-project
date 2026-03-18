@@ -91,6 +91,27 @@ def plot_average_attack_by_type() -> None:
     plt.close()
 
 
+def plot_top_10_strongest_pokemon() -> None:
+    """
+    Create a bar chart for the top 10 strongest Pokémon.
+    """
+    data = get_top_10_strongest_pokemon()
+
+    names = [d["name"] for d in data]
+    total_stats = [d["total_stats"] for d in data]
+
+    plt.figure()
+    plt.bar(names, total_stats)
+    plt.xticks(rotation=45)
+    plt.title("Top 10 Strongest Pokémon")
+    plt.xlabel("Pokémon")
+    plt.ylabel("Total Stats")
+
+    plt.tight_layout()
+    plt.savefig("images/top_10_strongest_pokemon.png")
+    plt.close()
+
+
 if __name__ == "__main__":
     print("\nTop 10 strongest Pokémon:\n")
     strongest = get_top_10_strongest_pokemon()
@@ -104,3 +125,6 @@ if __name__ == "__main__":
 
     plot_average_attack_by_type()
     print("\nSaved chart: images/avg_attack_by_type.png")
+
+    plot_top_10_strongest_pokemon()
+    print("Saved chart: images/top_10_strongest_pokemon.png")
