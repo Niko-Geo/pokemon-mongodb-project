@@ -46,17 +46,24 @@ def fetch_pokemon_detail(url: str) -> dict[str, Any]:
     return payload
 
 
+def fetch_pokemon_batch(limit: int = 5, offset: int = 0) -> list[dict[str, Any]]:
+    """
+    Fetch a small batch of full Pokémon detail documents.
+    """
+    pokemon_refs = fetch_pokemon_list(limit=limit, offset=offset)
+    pokemon_details: list[dict[str, Any]] = []
+
+    for pokemon in pokemon_refs:
+        detail = fetch_pokemon_detail(pokemon["url"])
+        pokemon_details.append(detail)
+
+    return pokemon_details
+
+
 if __name__ == "__main__":
-    pokemon_list = fetch_pokemon_list(limit=1, offset=0)
-    first_pokemon = pokemon_list[0]
+    pokemon_batch = fetch_pokemon_batch(limit=3, offset=0)
 
-    print("List result:")
-    print(first_pokemon)
+    print(f"Fetched {len(pokemon_batch)} Pokémon.\n")
 
-    detail = fetch_pokemon_detail(first_pokemon["url"])
-
-    print("\nDetail result:")
-    print(f"id: {detail['id']}")
-    print(f"name: {detail['name']}")
-    print(f"height: {detail['height']}")
-    print(f"weight: {detail['weight']}")
+    for pokemon in pokemon_batch:
+        print(f"id={pokemon['id']}, name={pokemon['name']}")
