@@ -37,7 +37,35 @@ def create_clean_collection() -> None:
                         "in": "$$ability_item.ability.name",
                     }
                 },
-                "stats": 1,
+                "stats_object": {
+                    "$arrayToObject": {
+                        "$map": {
+                            "input": "$stats",
+                            "as": "stat_item",
+                            "in": {
+                                "k": "$$stat_item.stat.name",
+                                "v": "$$stat_item.base_stat",
+                            },
+                        }
+                    }
+                },
+            }
+        },
+        {
+            "$project": {
+                "id": 1,
+                "name": 1,
+                "height": 1,
+                "weight": 1,
+                "base_experience": 1,
+                "types": 1,
+                "abilities": 1,
+                "hp": "$stats_object.hp",
+                "attack": "$stats_object.attack",
+                "defense": "$stats_object.defense",
+                "special_attack": "$stats_object.special-attack",
+                "special_defense": "$stats_object.special-defense",
+                "speed": "$stats_object.speed",
             }
         },
         {"$out": settings.collection_clean},
