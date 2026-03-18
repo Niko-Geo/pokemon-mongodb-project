@@ -30,3 +30,27 @@ def insert_one_document(document: dict[str, Any]) -> None:
     """
     collection = get_collection()
     collection.insert_one(document)
+
+
+def ensure_indexes() -> None:
+    """
+    Ensure required indexes exist.
+    """
+    collection = get_collection()
+    collection.create_index("id", unique=True)
+
+
+def insert_many_documents(documents: list[dict[str, Any]]) -> None:
+    """
+    Insert multiple documents into MongoDB.
+    Ignores duplicates (based on unique index).
+    """
+    collection = get_collection()
+
+    if not documents:
+        return
+
+    try:
+        collection.insert_many(documents, ordered=False)
+    except Exception as e:
+        print(f"Insert warning: {e}")
