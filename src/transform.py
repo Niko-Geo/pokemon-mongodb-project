@@ -66,6 +66,16 @@ def create_clean_collection() -> None:
                 "special_attack": "$stats_object.special-attack",
                 "special_defense": "$stats_object.special-defense",
                 "speed": "$stats_object.speed",
+                "total_stats": {
+                    "$add": [
+                        "$stats_object.hp",
+                        "$stats_object.attack",
+                        "$stats_object.defense",
+                        "$stats_object.special-attack",
+                        "$stats_object.special-defense",
+                        "$stats_object.speed",
+                    ]
+                },
             }
         },
         {"$out": settings.collection_clean},
