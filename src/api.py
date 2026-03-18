@@ -2,8 +2,6 @@ from typing import Any
 
 import requests
 
-from load import ensure_indexes, insert_many_documents
-
 BASE_URL = "https://pokeapi.co/api/v2/pokemon"
 
 
@@ -55,20 +53,9 @@ def fetch_pokemon_batch(limit: int = 5, offset: int = 0) -> list[dict[str, Any]]
     pokemon_refs = fetch_pokemon_list(limit=limit, offset=offset)
     pokemon_details: list[dict[str, Any]] = []
 
-    for pokemon in pokemon_refs:
+    for index, pokemon in enumerate(pokemon_refs, start=1):
+        print(f"[API] Fetching {index}/{len(pokemon_refs)}: {pokemon['name']}")
         detail = fetch_pokemon_detail(pokemon["url"])
         pokemon_details.append(detail)
 
     return pokemon_details
-
-
-if __name__ == "__main__":
-    ensure_indexes()
-
-    pokemon_batch = fetch_pokemon_batch(limit=5, offset=0)
-
-    print(f"Inserting {len(pokemon_batch)} Pokémon...")
-
-    insert_many_documents(pokemon_batch)
-
-    print("Done.")
