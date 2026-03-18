@@ -1,5 +1,32 @@
-# Handles loading data into MongoDB
+import os
+from typing import Any
+
+from dotenv import load_dotenv
+from pymongo import MongoClient
 
 
-def insert_data() -> None:
-    pass
+def get_collection() -> Any:
+    """
+    Create MongoDB connection and return collection.
+    """
+    load_dotenv()
+
+    mongo_uri = os.getenv("MONGO_URI")
+    db_name = os.getenv("DATABASE_NAME")
+    collection_name = os.getenv("COLLECTION_RAW")
+
+    if not mongo_uri or not db_name or not collection_name:
+        raise ValueError("Missing environment variables.")
+
+    client = MongoClient(mongo_uri)
+    db = client[db_name]
+
+    return db[collection_name]
+
+
+def insert_one_document(document: dict[str, Any]) -> None:
+    """
+    Insert a single document into MongoDB.
+    """
+    collection = get_collection()
+    collection.insert_one(document)

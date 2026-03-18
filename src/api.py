@@ -2,6 +2,8 @@ from typing import Any
 
 import requests
 
+from load import insert_one_document
+
 BASE_URL = "https://pokeapi.co/api/v2/pokemon"
 
 
@@ -61,9 +63,11 @@ def fetch_pokemon_batch(limit: int = 5, offset: int = 0) -> list[dict[str, Any]]
 
 
 if __name__ == "__main__":
-    pokemon_batch = fetch_pokemon_batch(limit=3, offset=0)
+    pokemon_batch = fetch_pokemon_batch(limit=1, offset=0)
+    pokemon = pokemon_batch[0]
 
-    print(f"Fetched {len(pokemon_batch)} Pokémon.\n")
+    print(f"Inserting: {pokemon['name']}")
 
-    for pokemon in pokemon_batch:
-        print(f"id={pokemon['id']}, name={pokemon['name']}")
+    insert_one_document(pokemon)
+
+    print("Inserted successfully.")
