@@ -1,27 +1,20 @@
-import os
 from typing import Any
 
-from dotenv import load_dotenv
 from pymongo import MongoClient
+
+from config import get_settings
 
 
 def get_collection() -> Any:
     """
     Create MongoDB connection and return collection.
     """
-    load_dotenv()
+    settings = get_settings()
 
-    mongo_uri = os.getenv("MONGO_URI")
-    db_name = os.getenv("DATABASE_NAME")
-    collection_name = os.getenv("COLLECTION_RAW")
+    client = MongoClient(settings.mongo_uri)
+    db = client[settings.database_name]
 
-    if not mongo_uri or not db_name or not collection_name:
-        raise ValueError("Missing environment variables.")
-
-    client = MongoClient(mongo_uri)
-    db = client[db_name]
-
-    return db[collection_name]
+    return db[settings.collection_raw]
 
 
 def insert_one_document(document: dict[str, Any]) -> None:
