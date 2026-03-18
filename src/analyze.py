@@ -1,5 +1,6 @@
 from typing import Any
 
+import matplotlib.pyplot as plt
 from pymongo import MongoClient
 
 from config import get_settings
@@ -40,14 +41,66 @@ def get_top_10_strongest_pokemon() -> list[dict[str, Any]]:
     return list(collection.aggregate(pipeline))
 
 
+def get_average_attack_by_type() -> list[dict[str, Any]]:
+    """
+    Compute average attack value per Pokémon type.
+    """
+    collection = get_clean_collection()
+
+    pipeline = [
+        {"$unwind": "$types"},
+        {
+            "$group": {
+                "_id": "$types",
+                "avg_attack": {"$avg": "$attack"},
+                "count": {"$sum": 1},
+            }
+        },
+        {
+            "$project": {
+                "_id": 0,
+                "type": "$_id",
+                "avg_attack": 1,
+                "count": 1,
+            }
+        },
+        {"$sort": {"avg_attack": -1}},
+    ]
+
+    return list(collection.aggregate(pipeline))
+
+
+def plot_average_attack_by_type() -> None:
+    """
+    Create a bar chart of average attack per type.
+    """
+    data = get_average_attack_by_type()
+
+    types = [d["type"] for d in data]
+    avg_attack = [d["avg_attack"] for d in data]
+
+    plt.figure()
+    plt.bar(types, avg_attack)
+    plt.xticks(rotation=45)
+    plt.title("Average Attack by Pokémon Type")
+    plt.xlabel("Type")
+    plt.ylabel("Average Attack")
+
+    plt.tight_layout()
+    plt.savefig("images/avg_attack_by_type.png")
+    plt.close()
+
+
 if __name__ == "__main__":
-    results = get_top_10_strongest_pokemon()
+    print("\nTop 10 strongest Pokémon:\n")
+    strongest = get_top_10_strongest_pokemon()
+    for p in strongest:
+        print(f"{p['name']} | {p['total_stats']} | {p['types']}")
 
-    print("Top 10 strongest Pokémon:\n")
+    print("\nAverage attack by type:\n")
+    avg_attack = get_average_attack_by_type()
+    for t in avg_attack:
+        print(f"{t['type']} | avg_attack={t['avg_attack']:.2f} | n={t['count']}")
 
-    for pokemon in results:
-        print(
-            f"{pokemon['name']} | "
-            f"total_stats={pokemon['total_stats']} | "
-            f"types={pokemon['types']}"
-        )
+    plot_average_attack_by_type()
+    print("\nSaved chart: images/avg_attack_by_type.png")
