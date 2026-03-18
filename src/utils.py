@@ -1,4 +1,5 @@
 # Utility functions
 
-def helper():
+
+def helper() -> None:
     pass

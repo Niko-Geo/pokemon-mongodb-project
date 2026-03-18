@@ -3,3 +3,9 @@ pymongo
 pandas
 matplotlib
 python-dotenv
+pytest
+pytest-cov
+black
+ruff
+mypy
+pre-commit

@@ -1,4 +1,5 @@
 # Handles data cleaning and transformation
 
-def transform_data():
+
+def transform_data() -> None:
     pass
