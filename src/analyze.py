@@ -112,6 +112,49 @@ def plot_top_10_strongest_pokemon() -> None:
     plt.close()
 
 
+def get_total_stats_distribution() -> list[dict[str, Any]]:
+    """
+    Group Pokémon into total_stats ranges using MongoDB $bucket.
+    """
+    collection = get_clean_collection()
+
+    pipeline = [
+        {
+            "$bucket": {
+                "groupBy": "$total_stats",
+                "boundaries": [0, 300, 400, 500, 600, 700],
+                "default": "other",
+                "output": {
+                    "count": {"$sum": 1},
+                },
+            }
+        },
+        {"$sort": {"_id": 1}},
+    ]
+
+    return list(collection.aggregate(pipeline))
+
+
+def plot_total_stats_distribution() -> None:
+    """
+    Create a bar chart for the distribution of total_stats buckets.
+    """
+    data = get_total_stats_distribution()
+
+    labels = [str(item["_id"]) for item in data]
+    counts = [item["count"] for item in data]
+
+    plt.figure()
+    plt.bar(labels, counts)
+    plt.title("Distribution of Total Stats")
+    plt.xlabel("Total Stats Range")
+    plt.ylabel("Number of Pokémon")
+
+    plt.tight_layout()
+    plt.savefig("images/total_stats_distribution.png")
+    plt.close()
+
+
 if __name__ == "__main__":
     print("\nTop 10 strongest Pokémon:\n")
     strongest = get_top_10_strongest_pokemon()
@@ -128,3 +171,11 @@ if __name__ == "__main__":
 
     plot_top_10_strongest_pokemon()
     print("Saved chart: images/top_10_strongest_pokemon.png")
+
+    print("\nTotal stats distribution:\n")
+    distribution = get_total_stats_distribution()
+    for bucket in distribution:
+        print(f"{bucket['_id']} | count={bucket['count']}")
+
+    plot_total_stats_distribution()
+    print("Saved chart: images/total_stats_distribution.png")
