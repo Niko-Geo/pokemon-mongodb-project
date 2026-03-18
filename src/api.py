@@ -49,13 +49,28 @@ def fetch_pokemon_detail(url: str) -> dict[str, Any]:
 def fetch_pokemon_batch(limit: int = 5, offset: int = 0) -> list[dict[str, Any]]:
     """
     Fetch a small batch of full Pokémon detail documents.
+
+    If one Pokémon detail request fails, log the error and continue.
     """
     pokemon_refs = fetch_pokemon_list(limit=limit, offset=offset)
     pokemon_details: list[dict[str, Any]] = []
 
     for index, pokemon in enumerate(pokemon_refs, start=1):
-        print(f"[API] Fetching {index}/{len(pokemon_refs)}: {pokemon['name']}")
-        detail = fetch_pokemon_detail(pokemon["url"])
-        pokemon_details.append(detail)
+        pokemon_name = pokemon.get("name", "unknown")
+        pokemon_url = pokemon.get("url")
+
+        print(f"[API] Fetching {index}/{len(pokemon_refs)}: {pokemon_name}")
+
+        if not pokemon_url:
+            print(f"[API][WARN] Missing URL for Pokémon: {pokemon_name}")
+            continue
+
+        try:
+            detail = fetch_pokemon_detail(pokemon_url)
+            pokemon_details.append(detail)
+        except requests.RequestException as exc:
+            print(f"[API][WARN] Request failed for {pokemon_name}: {exc}")
+        except ValueError as exc:
+            print(f"[API][WARN] Invalid payload for {pokemon_name}: {exc}")
 
     return pokemon_details
